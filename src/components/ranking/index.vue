@@ -2,11 +2,11 @@
   <div>
     <title-header :common="common" ></title-header>
     <el-card>
-      <el-row v-show="show">
+     <!-- <el-row v-show="show">
         <el-col :span="24"><div class="schoolNow">{{title}}</div></el-col>
-      </el-row>
-      <search   v-show="!show" @recordList="handleChange" ref="search"></search>
-      <card  v-show="!show" ref="cardmenu" ></card>
+      </el-row> -->
+      <search    @recordList="handleChange" ref="search"></search>
+      <card ref="cardmenu" ></card>
     </el-card>
   </div>
 </template>

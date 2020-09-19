@@ -1,9 +1,9 @@
 <template>
   <div>
-    <el-row class="searchBox" :gutter="20" v-if="show">
+    <el-row class="searchBox" :gutter="20">
       <el-col :span="6"> <current-school></current-school></el-col>
-      <el-col :span="2"> <div class="name">班级选择</div></el-col>
-      <el-col :span="4">
+      <el-col :span="2" v-if="!showDialog"> <div class="name">班级选择</div></el-col>
+      <el-col :span="4" v-if="!showDialog">
         <el-select v-model="value" placeholder="请选择" clearable  @change="handleClassChange">
             <el-option
               v-for="item in options"
@@ -13,10 +13,10 @@
             </el-option>
           </el-select>
       </el-col>
-     <el-col :span="2">
+     <el-col :span="2" v-if="!showDialog">
        <el-button type="primary" @click="searchStudent">查询</el-button>
      </el-col>
-     <el-col :span="2">
+     <el-col :span="2" v-if="!showDialog">
        <el-button type="primary" @click="handleReset">重置</el-button>
      </el-col>
     </el-row>
@@ -28,7 +28,10 @@
   export default{
     created() {
       this.classId = window.sessionStorage.getItem('bindclassId');
-      this.className = window.sessionStorage.getItem('bindclassName')
+      this.className = window.sessionStorage.getItem('bindclassName');
+      this.schoolName = window.sessionStorage.getItem('schoolName');
+      this.regionName = window.sessionStorage.getItem('regionName');
+      this.computedNow()
       this.getOptions()
     },
     data() {
@@ -38,13 +41,21 @@
         inputName: '',
         classId: '',
         className: '',
-        show: true
+        regionName: '',
+        schoolName: '',
+        show: false,
+        showDialog: false
       }
     },
     components:{
       currentSchool
     },
     methods: {
+      computedNow() {
+        if(this.schoolName == this.regionName) {
+          this.showDialog = true
+        }
+      },
       handleReset() {
         this.inputName = '';
         this.classId  =  '';
