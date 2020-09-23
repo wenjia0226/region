@@ -50,7 +50,7 @@
                  </el-menu-item>
                  <el-submenu index="/online">
                    <template slot="title">
-                     <i class="el-icon-s-custom"></i>
+                     <i class="el-icon-office-building"></i>
                      <span>智能排座</span>
                    </template>
                    <el-menu-item-group>
@@ -85,8 +85,16 @@
                    </el-menu-item-group>
                  </el-submenu>
                  <el-menu-item index="/ranking">
-                   <i class="el-icon-document"></i>
+                   <i class="el-icon-s-data"></i>
                    <span slot="title">排行榜</span>
+                 </el-menu-item>
+                 <el-menu-item index="/coparation">
+                   <i class="el-icon-menu"></i>
+                   <span slot="title">区合作商管理</span>
+                 </el-menu-item>
+                 <el-menu-item index="/clert">
+                   <i class="el-icon-menu"></i>
+                   <span slot="title">店员管理</span>
                  </el-menu-item>
                </el-menu>
       </el-aside>
@@ -96,7 +104,6 @@
       </el-main>
    </el-container>
 </template>
-
 <script>
   import axios from 'axios'
   export default {

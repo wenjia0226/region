@@ -45,7 +45,7 @@
        axios({
              method: 'post',
              data: param,
-             url: '/lightspace/school/badList'
+             url: '/lightspace/region/badList'
            }).then(this.handleGetTopAllSucc.bind(this)).catch((err) => {console.log(err)})
       },
       handleGetTopAllSucc(res) {

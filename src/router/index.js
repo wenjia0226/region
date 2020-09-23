@@ -1,23 +1,3 @@
-// import Vue from 'vue'
-// import Router from 'vue-router'
-// import Home from '@/components/home'
-// import Login from '@/components/Login'
-// import First from '@/components/first/index.vue'
-// Vue.use(Router)
-
-// export default new Router({
-//  routes: [
-//     {path: '/', redirect: '/login'},
-//     {path: '/login',component: Login},
-//     {
-//       path: '/home',
-//       component: Home,
-//       children: [
-//         {path: '/first', component: First },
-//       ]
-//     }
-//   ]
-// })
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/components/home'
@@ -41,6 +21,8 @@ import noclock from '@/components/noclock/index'
 import nocheckPersent from '@/components/nocheckPersent.vue'
 import allBadPersent from '@/components/allBadPersent.vue'
 import ranking from '@/components/ranking/index.vue'
+import coparation from '@/components/coparation/index.vue'
+import clert from '@/components/clert/index.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -70,7 +52,9 @@ export default new Router({
          {path: '/eyedown', component: eyedown},
          {path: '/nocheck', component: nocheck},
          {path: '/noclock', component: noclock},
-         {path: '/ranking', component: ranking}
+         {path: '/ranking', component: ranking},
+         {path: '/coparation',component: coparation},
+         {path: '/clert',component: clert}
        ]
      }
   ]
