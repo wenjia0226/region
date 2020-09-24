@@ -26,14 +26,39 @@
                        <i class="el-icon-star-on"></i>
                        <span slot="title">学生管理</span>
                      </el-menu-item>
-                     <el-menu-item index="/classsetting" v-if="this.role !== 'teacher'">
-                       <i class="el-icon-star-on"></i>
-                       <span slot="title">班级管理</span>
-                    </el-menu-item>
                     <el-menu-item index="/code">
                        <i class="el-icon-c-scale-to-original"></i>
                        <span slot="title">二维码下载</span>
                     </el-menu-item>
+                   </el-menu-item-group>
+                 </el-submenu>
+                 <el-submenu index="/school">
+                   <template slot="title">
+                     <i class="el-icon-s-custom"></i>
+                     <span>学校管理</span>
+                   </template>
+                   <el-menu-item-group>
+                     <el-menu-item index="/school">
+                       <i class="el-icon-star-on"></i>
+                       <span slot="title">学校管理</span>
+                     </el-menu-item>
+                     <el-menu-item index="/classsetting" v-if="this.role !== 'teacher'">
+                       <i class="el-icon-star-on"></i>
+                       <span slot="title">班级管理</span>
+                    </el-menu-item>
+                   </el-menu-item-group>
+                 </el-submenu>
+                 <el-submenu index="/schoolAccount">
+                   <template slot="title">
+                     <i class="el-icon-s-custom"></i>
+                     <span>账号管理</span>
+                   </template>
+                   <el-menu-item-group>
+                     <el-menu-item index="/schoolAccount">
+                       <i class="el-icon-star-on"></i>
+                       <span slot="title">学校账号管理</span>
+                     </el-menu-item>
+                    
                    </el-menu-item-group>
                  </el-submenu>
                  <el-menu-item index="/teacher" v-if="this.role !== 'teacher'">

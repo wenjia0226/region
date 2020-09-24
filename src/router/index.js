@@ -23,6 +23,8 @@ import allBadPersent from '@/components/allBadPersent.vue'
 import ranking from '@/components/ranking/index.vue'
 import coparation from '@/components/coparation/index.vue'
 import clert from '@/components/clert/index.vue'
+import school from '@/components/school/index.vue'
+import schoolAccount from '@/components/schoolAccount.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -54,7 +56,9 @@ export default new Router({
          {path: '/noclock', component: noclock},
          {path: '/ranking', component: ranking},
          {path: '/coparation',component: coparation},
-         {path: '/clert',component: clert}
+         {path: '/clert',component: clert},
+         {path: '/school', component: school},
+          {path: '/schoolAccount', component: schoolAccount},
        ]
      }
   ]
