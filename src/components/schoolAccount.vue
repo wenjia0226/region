@@ -1,125 +1,121 @@
 <template>
-    <div>
-          <!-- 面包屑导航区域 -->
-
-        <!-- 卡片视图 -->
-        <el-card>
-            <el-row :gutter="20">
-                <el-col :span="6">
-                    <el-input placeholder="输入账号"   v-model="query" clearable @clear="searchAccount">
-                    <el-button slot="append" icon="el-icon-search"  @click="searchAccount"></el-button>
-                    </el-input>
-                </el-col>
-                <el-col :span="6">
-                    <el-button type="primary" @click="showAddCountDiaglog">新增账号</el-button>
-                </el-col>
-            </el-row>
-              <!-- 用户列表 -->
-            <el-table
-             :data="userList" border highlight-current-row   ref="table" stripe style="width: 100%" v-show="!this.searchAccountList.length">
-            <el-table-column label="登录账号" prop="loginName"></el-table-column>
-            <el-table-column label="姓名" prop="name"></el-table-column>
-            <el-table-column label="创建时间" prop="genTime"></el-table-column>
-            <el-table-column label="操作">
-                <template slot-scope="scope">
-                    <el-button type="danger"  size="middle" icon="el-icon-delete" @click="removeUserById(scope.row.id)"></el-button>
-                </template>
-            </el-table-column>
-            <el-table-column label="操作">
-                <template slot-scope="scope">
-                    <el-button type="primary"  size="middle"  @click="showAddSchoolDialog(scope.row.id)" >添加集团从属学校</el-button>
-                </template>
-            </el-table-column>
-            <el-table-column label="操作" width="120">
+  <div>   <!-- 卡片视图 -->
+    <el-card>
+      <el-row :gutter="20">
+        <el-col :span="6">
+            <el-input placeholder="输入账号"   v-model="query" clearable @clear="searchAccount">
+            <el-button slot="append" icon="el-icon-search"  @click="searchAccount"></el-button>
+            </el-input>
+        </el-col>
+        <el-col :span="6">
+            <el-button type="primary" @click="showAddCountDiaglog">新增账号</el-button>
+        </el-col>
+      </el-row>
+      <!-- 用户列表 -->
+      <el-table
+       :data="userList" border highlight-current-row   ref="table" stripe style="width: 100%" v-show="!this.searchAccountList.length">
+      <el-table-column label="登录账号" prop="loginName"></el-table-column>
+      <el-table-column label="姓名" prop="name"></el-table-column>
+      <el-table-column label="创建时间" prop="genTime"></el-table-column>
+      <el-table-column label="操作">
+          <template slot-scope="scope">
+              <el-button type="danger"  size="middle" icon="el-icon-delete" @click="removeUserById(scope.row.id)"></el-button>
+          </template>
+      </el-table-column>
+      <el-table-column label="操作">
+          <template slot-scope="scope">
+              <el-button type="primary"  size="middle"  @click="showAddSchoolDialog(scope.row.id)" >添加管理学校</el-button>
+          </template>
+      </el-table-column>
+      <el-table-column label="操作" width="120">
+        <template slot-scope="scope">
+          <el-button type="text" @click="toogleExpand(scope.row)">查看从属学校</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column type="expand" width="1">
+        <template slot-scope="props">
+         <el-table  border :data="props.row.children" stripe>
+            <el-table-column align="center"label="学校" prop="name"></el-table-column>
+             <el-table-column align="center"label="所属区" prop="regionName"></el-table-column>
+            <el-table-column  align="center" label="操作">
               <template slot-scope="scope">
-                <el-button type="text" @click="toogleExpand(scope.row)">查看从属学校</el-button>
+                 <el-button type="danger" size="mini" icon="el-icon-delete" circle @click="deleteSchool(scope.row.id)"></el-button>
               </template>
             </el-table-column>
-            <el-table-column type="expand" width="1">
-              <template slot-scope="props">
-               <el-table  border :data="props.row.children" stripe>
-                  <el-table-column align="center"label="学校" prop="name"></el-table-column>
-                   <el-table-column align="center"label="所属区" prop="regionName"></el-table-column>
-                  <el-table-column  align="center" label="操作">
-                    <template slot-scope="scope">
-                       <el-button type="danger" size="mini" icon="el-icon-delete" circle @click="deleteSchool(scope.row.id)"></el-button>
-                    </template>
-                  </el-table-column>
-               </el-table>
-               </template>
-            </el-table-column>
-            </el-table>
-            <!-- 搜索列表 -->
-            <el-table :data="searchAccountList" border  stripe style="width: 100%" v-show="this.searchAccountList.length">
-                <el-table-column type="index"></el-table-column>
-                <el-table-column label="登录账号" prop="loginName"></el-table-column>
-                <el-table-column label="姓名" prop="name"></el-table-column>
-                 <el-table-column label="角色" prop="roleName"></el-table-column>
-                <el-table-column label="创建时间" prop="genTime"></el-table-column>
-                <el-table-column label="操作">
-                    <template slot-scope="scope">
-                        <el-button type="danger"  size="middle" icon="el-icon-delete" @click="removeUserById(scope.row.id)"></el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-           <!-- 分页功能 -->
-           <el-pagination
-             background
-             :current-page="this.number"
-             @current-change="handleCurrentChange"
-             layout="prev, pager, next"
-             :page-size ="this.size"
-             :total="this.totalElements">
-           </el-pagination>
-        </el-card>
-        <el-dialog title="添加从属学校"  :visible.sync="showAddSchool" width="50%" :before-close="handleShoolClose">
-          <el-form :model="addSchoolForm" label-width="120px">
-               <el-form-item label="学校选择" >
-                   <el-select v-model="school" placeholder="请选择" @change="handleAddSchool">
-                      <el-option
-                        v-for="item in schoolList"
-                        :key="item.id"
-                        :label="item.name"
-                        :value="item.id">
-                      </el-option>
-                    </el-select>
-               </el-form-item>
-          </el-form>
-          <span slot="footer" class="dialog-footer">
-              <el-button @click="handleShoolClose">取 消</el-button>
-              <el-button type="primary" @click="submitAddSchool" >确 定</el-button>
-          </span>
-      </el-dialog>
-               <!-- 添加角色对话框 -->
-              <el-dialog title="添加账号"  :visible.sync="addAccountDialogVisible" width="50%"  :before-close="handleClose">
-                 <el-form :model="addAccountForm" :rules="addAccountRules" ref="accountFormRef" label-width="120px">
-                  <el-form-item label="姓名" prop="name" >
-                      <el-input v-model="addAccountForm.name" clearable></el-input>
-                  </el-form-item>
-                  <el-form-item label="登录账号" prop="loginName">
-                      <el-input v-model="addAccountForm.loginName" clearable></el-input>
-                  </el-form-item>
-                  <el-form-item label="登录密码" prop="password">
-                      <el-input v-model="addAccountForm.password" clearable></el-input>
-                  </el-form-item>
-                  <el-form-item label="学校选择" >
-                      <el-select v-model="accountSchoolId" placeholder="请选择" @change="handleSchoolAccount">
-                         <el-option
-                           v-for="item in schoolList"
-                           :key="item.id"
-                           :label="item.name"
-                           :value="item.id">
-                         </el-option>
-                       </el-select>
-                  </el-form-item>
-                 </el-form>
-                  <span slot="footer" class="dialog-footer">
-                      <el-button @click="handleClose">取 消</el-button>
-                      <el-button type="primary" @click="submitAccount" >确 定</el-button>
-                  </span>
-              </el-dialog>
-
-    </div>
+         </el-table>
+         </template>
+      </el-table-column>
+      </el-table>
+    <!-- 搜索列表 -->
+      <el-table :data="searchAccountList" border  stripe style="width: 100%" v-show="this.searchAccountList.length">
+          <el-table-column type="index"></el-table-column>
+          <el-table-column label="登录账号" prop="loginName"></el-table-column>
+          <el-table-column label="姓名" prop="name"></el-table-column>
+           <el-table-column label="角色" prop="roleName"></el-table-column>
+          <el-table-column label="创建时间" prop="genTime"></el-table-column>
+          <el-table-column label="操作">
+              <template slot-scope="scope">
+                  <el-button type="danger"  size="middle" icon="el-icon-delete" @click="removeUserById(scope.row.id)"></el-button>
+              </template>
+          </el-table-column>
+      </el-table>
+     <!-- 分页功能 -->
+     <el-pagination
+       background
+       :current-page="this.number"
+       @current-change="handleCurrentChange"
+       layout="prev, pager, next"
+       :page-size ="this.size"
+       :total="this.totalElements">
+     </el-pagination>
+    </el-card>
+    <el-dialog title="添加从属学校"  :visible.sync="showAddSchool" width="50%" :before-close="handleShoolClose">
+      <el-form :model="addSchoolForm" label-width="120px">
+           <el-form-item label="学校选择" >
+               <el-select v-model="school" placeholder="请选择" @change="handleAddSchool">
+                  <el-option
+                    v-for="item in schoolList"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+           </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+          <el-button @click="handleShoolClose">取 消</el-button>
+          <el-button type="primary" @click="submitAddSchool" >确 定</el-button>
+      </span>
+    </el-dialog>
+     <!-- 添加角色对话框 -->
+    <el-dialog title="添加账号"  :visible.sync="addAccountDialogVisible" width="50%"  :before-close="handleClose">
+       <el-form :model="addAccountForm" :rules="addAccountRules" ref="accountFormRef" label-width="120px">
+        <el-form-item label="姓名" prop="name" >
+            <el-input v-model="addAccountForm.name" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="登录账号" prop="loginName">
+            <el-input v-model="addAccountForm.loginName" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="登录密码" prop="password">
+            <el-input v-model="addAccountForm.password" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="学校选择" >
+            <el-select v-model="accountSchoolId" placeholder="请选择" @change="handleSchoolAccount">
+               <el-option
+                 v-for="item in schoolList"
+                 :key="item.id"
+                 :label="item.name"
+                 :value="item.id">
+               </el-option>
+             </el-select>
+        </el-form-item>
+       </el-form>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="handleClose">取 消</el-button>
+            <el-button type="primary" @click="submitAccount" >确 定</el-button>
+        </span>
+    </el-dialog>
+  </div>
 </template>
 <script>
 import axios from 'axios'
