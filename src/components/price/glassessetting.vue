@@ -1,18 +1,22 @@
 <template>
   <div>
-     <title-header :common="common" ></title-header>
-    <el-card>
-      <el-row :gutter="20" style="margin: 10px 0 30px">
+    <!-- 面包屑导航区域 -->
+     <el-breadcrumb separator-class="el-icon-arrow-right">
+         <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+         <el-breadcrumb-item>产品设置</el-breadcrumb-item>
+         <el-breadcrumb-item>系列产品</el-breadcrumb-item>
+     </el-breadcrumb>
+     <el-card  style="margin: 20px 0">
+      <el-row :gutter="20">
        <el-col :span="6">
        </el-col>
        <el-col :span="6">
-          <el-button type="primary" @click="addCooparataion">添加机构</el-button>
+          <el-button type="primary" @click="addSeriesProduct">添加产品</el-button>
        </el-col>
       </el-row>
-      <el-table :data="this.cooparationList" border  stripe style="width: 100%">
-        <el-table-column label="机构名称" prop="name"></el-table-column>
-        <el-table-column label="电话" prop="phone"></el-table-column>
-        <el-table-column label="地址" prop="address"></el-table-column>
+      <el-table :data="this.productSeriesList" border  stripe style="width: 100%;margin: 20px 0">
+        <el-table-column label="系列名称" prop="seriesName"></el-table-column>
+
         <el-table-column label="图片"  prop="imgurl" min-width="20%" >
          <!-- 图片的显示 -->
          <template   slot-scope="scope">
@@ -27,18 +31,29 @@
       </el-table-column>
       </el-table>
       <!-- 添加对话框 -->
-      <el-dialog title="添加合作商" :visible.sync="addDialogVisible" width="50%" :before-close="handleClose">
+      <el-dialog title="添加系列" :visible.sync="addDialogVisible" width="50%" :before-close="handleClose">
           <el-form :model="addForm" :rules="addRules" ref="addFormRef" label-width="120px">
-              <el-form-item label="机构名称" prop="name" >
-                  <el-input v-model="addForm.name"></el-input>
+              <el-form-item label="所属标签" prop='label'>
+                  <el-select v-model="addForm.label" placeholder="请选择"   @change="handleChange">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
+                    </el-option>
+                  </el-select>
               </el-form-item>
-              <el-form-item label="电话" prop="phone">
-                  <el-input v-model="addForm.phone"></el-input>
+              <el-form-item label="所属系列" prop='label'>
+                  <el-select v-model="series" placeholder="请选择"   @change="handleSeriousChange">
+                    <el-option
+                      v-for="item in seriesOptions"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
+                    </el-option>
+                  </el-select>
               </el-form-item>
-              <el-form-item label="地址" prop="address">
-                  <el-input v-model="addForm.address"></el-input>
-              </el-form-item>
-               <el-form-item label="图片" >
+             <el-form-item label="图片" >
               <el-upload
                 ref="upload"
                 action="/as"
@@ -49,9 +64,6 @@
                 >
                 <i class="el-icon-plus"></i>
               </el-upload>
-              </el-form-item>
-              <el-form-item label="备注" prop="details">
-                  <el-input v-model="addForm.details"></el-input>
               </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
@@ -64,82 +76,80 @@
 </template>
 <script>
   import axios from 'axios'
-  import titleHeader from './header'
   export default {
     created() {
-         this.getCooparationList(this.page);
-    },
-    components: {
-      titleHeader
+      this.getproductSeriesList();
+       this.getOPtions();
     },
     data() {
       return {
-        common: '合作商管理',
-        token: '',
-        cooparationList: [],
-         fileList: [],
+       token: '',
+       series: '',
+       productSeriesList: [],
+       fileList: [],
+       labelId: '',
+       productId: '',
+       options: '',
         addDialogVisible: false, //控制对话框的显示隐藏
         file: '',
+        seriesOptions:[],
         addForm: {
-            phone: '',
             name: '',
-            address: '',
-            details: '',
+            label: '',
             file: '',
             token: ''
         },
         addRules: {
-            address: [{required: true, message: '请输入学校名称', trigger: 'blur' }],
-            details: [{required: false, message: '请输入班级名称', trigger: 'blur' }],
-            phone: [{required: true, message: '请输入手机号', trigger: 'blur' }],
+            label: [{required: true, message: '请选择所属标签', trigger: 'blur' }],
             name: [{required: true, message: '请输入姓名', trigger: 'blur' }],
-            file: {required: true, message: '选择图片'}
+            file: {required: true, message: '选择图片', trigger: 'blur'}
         },
-        regionName: '',
-        schoolName: '',
-        page: 1,
-        size: 10,
-        total:0,
-        totalElements: 0,
-        number: 1
         }
       },
       methods: {
-       //加载转圈
-       openFullScreen() {
-         const loading = this.$loading({
-           lock: true,
-           text: 'Loading',
-           spinner: 'el-icon-loading',
-           background: 'rgba(0,0,0,0.7)'
-         })
-         return loading;
-       },
-       closeFullScreen(loading) {
-         loading.close()
-       },
+        handleSeriousChange(val) {
+         this.productId = val;
+        },
+        handleChange(val) {
+          this.addForm.label = val;
+          this.labelId = val;
+          this.getSeriousProduct();
+        },
+        getSeriousProduct() {
+          let param = new FormData();
+          param.append('id', this.labelId);
+          axios({
+            method: 'post',
+            data: param,
+            url: '/lightspace/findSeriesBylabel'
+          }).then((this.handleGetProductByLabelId.bind(this))).catch((err) => {
+            console.log(err)
+          })
+        },
+        handleGetProductByLabelId(res) {
+          if(res.data.data) {
+            this.seriesOptions = res.data.data;
+          }
+        },
         handleUpload(raw){
           this.addForm.file = raw.file;
         },
-        //添加公司
+        //添加产品
         submitCoparation() {
          this.$refs.addFormRef.validate((valid) => {
            if(!valid) return;
             this.$refs.upload.submit();
            let param = new FormData();
            if(this.addForm.file) {
-         
-           param.append('details', this.addForm.details);
-           param.append('phone', this.addForm.phone);
-           param.append('address', this.addForm.address);
-           param.append('name', this.addForm.name);
-           param.append('file', this.addForm.file);
+             param.append('file', this.addForm.file);
+             param.append('seriesId', this.productId);
            }else {
              return this.$message.error('请添加图片')
            }
+
            axios({
                method: 'post',
-               url: '/lightspace/region/addPartnership',
+               url: '/lightspace/addSeriesProduct',
                data: param,
                headers: {
                  'Content-Type': 'multipart/form-data'
@@ -149,9 +159,10 @@
          })
         },
         handleAddSucc(res) {
+            //console.log(res);
           if(res.data.status === 10204) {
               this.$message.error(res.data.msg);
-              this.$router.push('/login');
+
              } else if(res.data.status == 10206) {
                this.$message.error(res.data.msg);
               this.addTeacherForm.schoolName = '';
@@ -160,13 +171,13 @@
               this.$message.success('添加成功');
               this.$refs.addFormRef.resetFields();
               this.$refs.upload.clearFiles();
-              this.getCooparationList();
+              this.getproductSeriesList();
             }
         },
         handleAddErr(err) {
             console.log(err)
         },
-        addCooparataion() {
+        addSeriesProduct() {
           this.addDialogVisible = true;
         },
         //关闭按钮
@@ -174,33 +185,30 @@
          this.addDialogVisible = false;
          this.$refs.addFormRef.resetFields();
         },
-        getCooparationList(page) {
-          this.openFullScreen();
+        getproductSeriesList() {
           let param = new URLSearchParams();
-          param.append('page', this.page);
           axios({
             method: 'post',
             data: param,
-             url: '/lightspace/region/partnershipList'
+             url: '/lightspace/seriesProductList'
           }).then(this.handleCoListSucc.bind(this)).catch(this.handleCoListErr.bind(this))
         },
         handleCoListSucc(res) {
-          this.closeFullScreen(this.openFullScreen())
-          if(res.data.status == 200 && res.data.data !== '') {
-           res ? res= res.data.data: '';
-           this.cooparationList = res.content;
-           this.totalElements = res.totalElements;
-           this.size = res.size;
-           this.number = res.number + 1;
-           }
+          // console.log(res)
+          if(res.data.status == 200) {
+            this.productSeriesList = res.data.data
+          }
 
         },
         handleCoListErr(err) {
           console.log(err)
         },
+        addTeacher() {
+
+        },
         //根据id删除学校
        async removeById(id) {
-          const confirmResult = await this.$confirm('此操作将永久删除该合作商, 是否继续?', '提示', {
+          const confirmResult = await this.$confirm('此操作将永久删除该系列, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -212,7 +220,7 @@
           param.append('id', id)
           axios({
               method: 'post',
-              url: '/lightspace/region/deletePartnership',
+              url: '/lightspace/deleteSeriesProduct',
               data: param
           }).then(this.handleDeleteSucc.bind(this))
           .catch(this.handleDeleteErr.bind(this))
@@ -223,21 +231,37 @@
                 this.$router.push('/login');
             } else if(res.data.status == 200) {
               this.$message.success('删除成功');
-              this.cooparationList = res.data.data;
-             this.getCooparationList(this.page)
+              this.getproductSeriesList()
             }
         },
         handleDeleteErr(err) {
             console.log(err)
         },
+        //获取级联选择器中的数据
+        getOPtions() {
+            let param = new URLSearchParams();
+            param.append('token', this.token);
+            axios({
+                method: 'post',
+                url: '/lightspace/labelList',
+                data: param
+            }).then(this.handleGetOptionSucc.bind(this)).catch(this.handleGetOptionErr.bind(this))
+        },
+        handleGetOptionSucc (res) {
+          if(res.data.status === 10204) {
+              this.$message.error(res.data.msg);
+              this.$router.push('/login');
+          } else if(res.data.status == 200) {
+           // console.log(res)
+             this.options = res.data.data;
+          }
+        },
+        handleGetOptionErr(err) {
+            console.log(err)
+        },
     }
   }
 </script>
-<style lang="stylus" scoped>
-.schoolNow
-   font-size: 20px
-   font-weight: bold
-   letter-spacing :3px
-   color:#64c0ff
-   margin: 0 10px
+
+<style>
 </style>

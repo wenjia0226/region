@@ -1,113 +1,153 @@
 <template>
-  <div class="login_wrap">
-    <div class="inner_wrap">
-        <div  class="top_title">
-          青少年人工智能健康管理平台
-        </div>
-        <div class="second_title">--学校管理后台--</div>
-        <div class="item_wrap">
-          <label class="username">用户名</label>
-          <input class="user_input" v-model="username" >
-         </div>
-        <div class="item_wrap">
-          <label class="username">密码</label>
-          <input class="user_input" v-model="password" @keyup.enter="login">
-         </div>
-        <el-button class="login_btn" type="primary" @click="login">登录</el-button>
-    </div>
-  </div>
-</template>
+    <div class="login_container">
+      
+       <el-row style="flex: 1">
+         <el-col :span="10" :offset="7">
+          <div class="login_box">
+              <!-- <div class="avatar_box">
+                  <img src="../assets/logo.png" alt="">
+              </div> -->
+              <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules" class="login_form">
+                   <el-form-item class="userLogin"> 用户登录</el-form-item>
+                  <el-form-item prop="username">
+                      <el-input  v-model="loginForm.loginname" prefix-icon="el-icon-user-solid"></el-input>
+                  </el-form-item>
+                  <el-form-item prop="password">
+                      <el-input v-model="loginForm.password" prefix-icon="el-icon-lock" @keyup.enter.native="submitForm"></el-input>
+                  </el-form-item>
+                  <el-form-item class="btns"  >
+                      <el-button type="primary" @click="submitForm" >登录</el-button>
+                      <!-- <el-button type="info" @click="resetForm">重置</el-button> -->
+                  </el-form-item>
+              </el-form>
+          </div>
+        </el-col>
+        </el-row>
+        <div style="background: #0652A1; height: 50px;width: 100%;">
 
+        </div>
+    </div>
+</template>
 <script>
-  import axios from 'axios'
-  export default{
+import axios from 'axios'
+export default {
+    name: 'login',
+    // created() {
+    //     this.getMenuList()
+    // },
     data() {
-      return {
-        username: '',
-        password: '',
-        roleId: ''
-      }
+        return {
+            //登录表单的数据绑定对象
+            loginForm: {
+                loginname: '',
+                password: ''
+            },
+            loginFormRules: {
+                loginname: [
+                    {required: true,  message: '请输入姓名', trigger: 'blur'}
+                ],
+                password: [
+                     {required: true,  message: '请输入密码', trigger: 'blur'},
+
+                ]
+            }
+        }
     },
     methods: {
-     login() {
-       let param = new FormData();
-       param.append('loginName', this.username);
-       param.append('password', this.password);
-       axios({
-         method:'post',
-         data: param,
-         url: '/lightspace/school/regionLogin'
-       }).then((res) => {
-         if(res.data.status == 200) {
-            window.sessionStorage.setItem('userName', res.data.data.userName);
-            window.sessionStorage.setItem('schoolName', res.data.data.schoolName);
-            window.sessionStorage.setItem('schoolId', res.data.data.schoolId);
-            window.sessionStorage.setItem('regionName', res.data.data.schoolName);
-            window.sessionStorage.setItem('regionId', res.data.data.schoolId);
-           
-             this.$router.push('/first');
-             this.$message.success('登录成功')
+        resetForm(formName) {
+            this.$refs.loginFormRef.resetFields()
+        },
+        submitForm() {
+            this.$refs.loginFormRef.validate( async(valid) => {
+                //预验证
+                if(!valid) return this.$message.error('请输入正确的账号密码');
+                //如果验证成功，发起登录请求
+               let param = new URLSearchParams();
+               param.append('loginname', this.loginForm.loginname);
+               param.append('password', this.loginForm.password);
+                axios({
+                    method: 'post',
+                    url: '/lightspace/priceclient/loginPrice',
+                    data: param
+                }).then(this.handleLoginSucc.bind(this))
+                .catch(this.handleLoginErr.bind(this))
+            })
+        },
+        handleLoginSucc(res) {
+         if(res.status !== 200) return this.$message.error('登录失败');
+            //将token 存到sessionStorage
+            console.log(res)
+          
+            this.$message.success('登录成功');
+		    this.$router.push('/home')
+       
 
-         } else {
-           this.$message.error(res.data.msg)
-         }
-       }).catch((err) => {
-         console.log(err)
-       })
-     }
+        },
+        handleLoginErr(err) {
+          this.$message.error('账号密码不存在')
+            console.log(err, err.msg)
+        },
+        home() {
+           this.$router.push('/home');
+        }
     }
-  }
+
+
+}
 </script>
-
-<style lang="stylus" scoped>
-   .login_wrap
-       width: 100vw;
-       height: 100vh;
-       background: #409EFF;
-       position: relative;
-       .inner_wrap
-          box-sizing: border-box;
-          padding: 1%;
-          width: 30%;
-          overflow:hidden;
-          background-color: rgba(33,41,53, .8);
-          // background: #212935;
-          border-radius: 10px;
-          text-align: center;
-          margin: auto;
-          color: #fff;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          -webkit-transform: translate(-50%, -50%);
-          -moz-transform: translate(-50%, -50%);/* for Firefox */
-          -ms-transform: translate(-50%,-50%); /* for IE */
-          -o-transform: translate(-50%,-50%);
-          transform: translate(-50%,-50%);
-          .top_title
-            font-size: 26px;
-            letter-spacing: 3px;
-          .second_title
-             font-size: 14px;
-             margin: 16px;
-             letter-spacing: 3px;
-          .item_wrap
-             display: flex;
-             width: 80%;
-             height: 36px;
-             line-height: 36px;
-             border: 1px solid #F0F2F5;
-             boder-radius: 3px;
-             margin: 20px 10% 20px 10%;
-            .username
-              width: 20%;
-              background-color: #1f242e;
-            .user_input
-               flex: 1
-               padding: 0 10px;
-        .login_btn
-           width: 80%;
-           font-weight: bold;
-
-
+<style >
+.login_container {
+     position: absolute;
+     top: 0;
+     bottom: 0;
+     left: 0;
+     right: 0;
+     display: flex;
+     flex-direction: column;
+     padding:10px;
+}
+.headerWrap {
+  height: 150px;
+  line-height: 150px;
+}
+.leftLogo {
+  height: 50px;
+  width: auto;
+}
+.rightLogo {
+  height: 150px;
+  width: auto;
+}
+.zhineng {
+ height: 100px;
+ width: auto;
+}
+.userLogin {
+  padding: 10rpx;
+  color: #0851A3;
+  font-size: 30rpx !important;
+  font-weight: bold;
+  text-align: center;
+}
+.login_box {
+    width: 450px;
+    border: 3px solid #0851A3;
+    border-radius: 3px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+.btns {
+    display: flex;
+    justify-content: center;
+}
+.login_form{
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.el-button--primary {
+  background: rgb(6, 82, 161);
+}
 </style>
